@@ -1,3 +1,0 @@
-sign in:
-- whe nsuer signs in it uses supabase docs and server package to sign the user in giving a n access token
-- the javascript in the sigin.html saves htis access token allowing the access token to be used until it is expired

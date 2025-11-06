@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Study App</title>
+    <title>Study Data - Study App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         .nav-link:hover { color: #26402B !important; background-color: rgba(0, 0, 0, 0.05) !important; }
         .nav-link:hover i { color: #26402B !important; }
+        .save-btn:hover {
+            background-color: #536555 !important;
+        }
     </style>
 </head>
 <body>
@@ -17,8 +20,8 @@
         <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" style="max-width: 200px; margin: 20px auto 10px auto; display: block;">
         <nav class="flex-1 px-5 pt-8" style="padding-top: 10px; padding-bottom: 10px; font-weight: 500;">
             <br/>
-            <a href="/" class="flex items-center gap-2 px-4 py-1 mb-2 text-lg w-full" style="background-color: rgba(121, 235, 86, 0.2); color: #26402B; border-radius: 9999px; border: 2px solid rgba(121, 235, 86, 0.4);">
-                <i class="hgi-stroke hgi-home-09 text-2xl" style="color: #26402B;"></i>
+            <a href="/" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 text-lg w-full" style="color: #6B7280; border-radius: 9999px; border: 2px solid #F5F5F5;">
+                <i class="hgi-stroke hgi-home-09 text-2xl" style="color: #536555;"></i>
                 <span>Dashboard</span>
             </a>
             <a href="/subjects" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 text-lg w-full" style="color: #6B7280; border-radius: 9999px; border: 2px solid #F5F5F5;">
@@ -37,8 +40,8 @@
                 <i class="hgi-stroke hgi-calendar-01 text-2xl" style="color: #536555;"></i>
                 <span>My Planner</span>
             </a>
-            <a href="/data" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 text-lg w-full" style="color: #6B7280; border-radius: 9999px; border: 2px solid #F5F5F5;">
-                <i class="hgi-stroke hgi-settings-01 text-2xl" style="color: #536555;"></i>
+            <a href="/data" class="flex items-center gap-2 px-4 py-1 mb-2 text-lg w-full" style="background-color: rgba(121, 235, 86, 0.2); color: #26402B; border-radius: 9999px; border: 2px solid rgba(121, 235, 86, 0.4);">
+                <i class="hgi-stroke hgi-settings-01 text-2xl" style="color: #26402B;"></i>
                 <span>Study Data</span>
             </a>
         </nav>
@@ -47,65 +50,24 @@
     <main class="main-content">
         <div class="view-area">
             <div class="view-area-content">
-                <div class="welcome-section">
-                    <h1 class="welcome-title">Welcome back!</h1>
-                    <p class="welcome-subtitle">Your notifications, assignments and exams are here for you, you can ask me questions about your study content on the right of the page!</p>
-                </div>
-                <h2 class="dashboard-heading">Reminders ></h2>
-                {% if notifications %}
-                <div class="notifications-section">
-                    {% for notification in notifications %}
-                    <div class="notification-item">
-                        <span class="notification-emoji">{{ notification.emoji }}</span>
-                        <span class="notification-text">{{ notification.message }}</span>
+                <h1 style="font-size: 32px; color: #26402B; margin-bottom: 30px; font-weight: 600;">Study Data</h1>
+                <form id="dataForm" style="display: flex; flex-direction: column; gap: 20px; max-width: 500px;">
+                    <div>
+                        <label for="hoursAvailable" style="display: block; margin-bottom: 8px; color: #26402B; font-weight: 500; font-size: 16px;">Hours Available Per Day</label>
+                        <input type="number" id="hoursAvailable" min="1" max="24" value="{{ user_data.hoursavailable if user_data and user_data.hoursavailable else 8 }}" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box;">
                     </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h3>Upcoming Assignments</h3>
-                        {% if assignments %}
-                            {% for assignment in assignments %}
-                            <div class="item-row">
-                                <span class="item-emoji">{{ assignment.emoji }}</span>
-                                <span class="item-name">{{ assignment.name }}</span>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <p>No assignments</p>
-                        {% endif %}
+                    <div>
+                        <label for="daysPerWeek" style="display: block; margin-bottom: 8px; color: #26402B; font-weight: 500; font-size: 16px;">Days Per Week</label>
+                        <input type="number" id="daysPerWeek" min="1" max="7" value="{{ user_data.daysperweek if user_data and user_data.daysperweek else 5 }}" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box;">
                     </div>
-                    <div class="card">
-                        <h3>Exams Coming Up</h3>
-                        {% if exams %}
-                            {% for exam in exams %}
-                            <div class="item-row">
-                                <span class="item-emoji">{{ exam.emoji }}</span>
-                                <span class="item-name">{{ exam.name }}</span>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <p>No exams</p>
-                        {% endif %}
+                    <div>
+                        <label for="weeksToSchedule" style="display: block; margin-bottom: 8px; color: #26402B; font-weight: 500; font-size: 16px;">Weeks To Schedule</label>
+                        <input type="number" id="weeksToSchedule" min="1" max="52" value="{{ user_data.weekstoschedule if user_data and user_data.weekstoschedule else 4 }}" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box;">
                     </div>
-                    <div class="card">
-                        <h3>My Subjects</h3>
-                        {% if subjects %}
-                            {% for subject in subjects %}
-                            <div class="item-row">
-                                <span class="item-name">{{ subject.name }}</span>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <p>No subjects</p>
-                        {% endif %}
-                    </div>
-                    <div class="card">
-                        <h3>Today's Planner</h3>
-                        <a href="/planner" style="display: inline-block; padding: 8px 16px; border: 1px solid #26402B; border-radius: 9999px; background-color: transparent; color: #26402B; text-decoration: none; font-size: 14px; font-weight: 500; margin-top: 12px;">generate a planner for today</a>
-                    </div>
-                </div>
+                    <button type="submit" class="save-btn" style="padding: 12px 24px; background-color: #26402B; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 500; font-size: 16px; transition: background-color 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px;">
+                        Save
+                    </button>
+                </form>
             </div>
         </div>
         <div id="aria-ai" class="aria-ai">
@@ -120,6 +82,20 @@
     </main>
 
     <script>
+        // save that hawk dua get it hawk tuah = hawk data no? just me ok
+        document.getElementById('dataForm').onsubmit = function(e) {
+            e.preventDefault();
+            fetch('/data/update', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    hoursavailable: parseInt(document.getElementById('hoursAvailable').value),
+                    daysperweek: parseInt(document.getElementById('daysPerWeek').value),
+                    weekstoschedule: parseInt(document.getElementById('weeksToSchedule').value)
+                })
+            });
+        };
+        
         // aria ai form
         var form = document.getElementById('aria-ai-form');
         var input = document.getElementById('aria-ai-input');
@@ -146,3 +122,4 @@
     </script>
 </body>
 </html>
+

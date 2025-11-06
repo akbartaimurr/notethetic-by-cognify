@@ -4,7 +4,11 @@ from dashboard import get_dashboard_data
 from subjects import get_subjects, add_subject
 from assignments import get_assignments, mark_assignment_done, add_assignment
 from exams import get_exams, delete_exam, add_exam
+from userdata import get_user_data
+from planner import generate_study_planner
+from data import update_user_data
 import os
+import json
 from dotenv import load_dotenv
 
 
@@ -226,7 +230,77 @@ def planner():
     # gotta be logged in
     if not check_login():
         return redirect('/signin')
+    
     return render_template('planner.html')
+
+# generate planner endpoint
+@app.route('/planner/generate', methods=['POST'])
+def generate_planner():
+    # gotta be logged in
+    if not check_login():
+        return jsonify({'success': False, 'error': 'Not logged in'}), 401
+    
+    user_id = session['user'].get('id')
+    
+    # get all data needed for planner
+    subjects_list = get_subjects(user_id)
+    user_data = get_user_data(user_id)
+    
+    # calculate total time per day from subjects
+    total_time_per_day = 0
+    for subject in subjects_list:
+        avg_time = subject.get('averagetimeinminutes') or 60
+        if avg_time:
+            total_time_per_day += avg_time
+    
+    # get data from userdata columns
+    hours_available = user_data.get('hoursavailable') if user_data else 8
+    days_per_week = user_data.get('daysperweek') if user_data else 5
+    weeks_to_schedule = user_data.get('weekstoschedule') if user_data else 4
+    
+    # generate study planner using OpenAI
+    # Send whole subjects with all columns
+    planner_text = generate_study_planner(
+        subjects=subjects_list,
+        total_time_per_day=total_time_per_day,
+        hours_available=hours_available,
+        days_per_week=days_per_week,
+        weeks_to_schedule=weeks_to_schedule
+    )
+    
+    return jsonify({'success': True, 'planner_text': planner_text})
+
+# data page
+@app.route('/data')
+def data():
+    # gotta be logged in
+    if not check_login():
+        return redirect('/signin')
+    
+    user_id = session['user'].get('id')
+    
+    # get user data
+    user_data = get_user_data(user_id)
+    
+    return render_template('data.html', user_data=user_data)
+
+# update data endpoint
+@app.route('/data/update', methods=['POST'])
+def update_data_route():
+    if not check_login():
+        return jsonify({'success': False, 'error': 'Not logged in'}), 401
+    
+    user_id = session['user'].get('id')
+    data = request.get_json()
+    
+    hours_available = data.get('hoursavailable')
+    days_per_week = data.get('daysperweek')
+    weeks_to_schedule = data.get('weekstoschedule')
+    
+    if update_user_data(user_id, hours_available, days_per_week, weeks_to_schedule):
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False, 'error': 'Failed to update data'}), 500
 
 # run the server
 if __name__ == '__main__':

@@ -17,25 +17,29 @@
         <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" style="max-width: 200px; margin: 20px auto 10px auto; display: block;">
         <nav class="flex-1 px-5 pt-8" style="padding-top: 10px; padding-bottom: 10px; font-weight: 500;">
             <br/>
-            <a href="/" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4 border-transparent" style="color: #6B7280;">
+            <a href="/" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 text-lg w-full" style="color: #6B7280; border-radius: 9999px; border: 2px solid #F5F5F5;">
                 <i class="hgi-stroke hgi-home-09 text-2xl" style="color: #536555;"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="/subjects" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4 border-transparent" style="color: #6B7280;">
+            <a href="/subjects" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 text-lg w-full" style="color: #6B7280; border-radius: 9999px; border: 2px solid #F5F5F5;">
                 <i class="hgi-stroke hgi-book-03 text-2xl" style="color: #536555;"></i>
                 <span>Subjects</span>
             </a>
-            <a href="/assignments" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4 border-transparent" style="color: #6B7280;">
+            <a href="/assignments" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 text-lg w-full" style="color: #6B7280; border-radius: 9999px; border: 2px solid #F5F5F5;">
                 <i class="hgi-stroke hgi-assignments text-2xl" style="color: #536555;"></i>
                 <span>Assignments</span>
             </a>
-            <a href="/exams" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4 border-transparent" style="color: #6B7280;">
+            <a href="/exams" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 text-lg w-full" style="color: #6B7280; border-radius: 9999px; border: 2px solid #F5F5F5;">
                 <i class="hgi-stroke hgi-book-01 text-2xl" style="color: #536555;"></i>
                 <span>Exams</span>
             </a>
-            <a href="/planner" class="flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4" style="background-color: rgba(121, 235, 86, 0.2); color: #26402B; border-bottom-color: rgba(121, 235, 86, 0.4);">
+            <a href="/planner" class="flex items-center gap-2 px-4 py-1 mb-2 text-lg w-full" style="background-color: rgba(121, 235, 86, 0.2); color: #26402B; border-radius: 9999px; border: 2px solid rgba(121, 235, 86, 0.4);">
                 <i class="hgi-stroke hgi-calendar-01 text-2xl" style="color: #26402B;"></i>
                 <span>My Planner</span>
+            </a>
+            <a href="/data" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 text-lg w-full" style="color: #6B7280; border-radius: 9999px; border: 2px solid #F5F5F5;">
+                <i class="hgi-stroke hgi-settings-01 text-2xl" style="color: #536555;"></i>
+                <span>Study Data</span>
             </a>
         </nav>
     </div>
@@ -43,30 +47,11 @@
     <main class="main-content">
         <div class="view-area">
             <div class="view-area-content">
-                <h1>My Planner</h1>
-                <div class="planner-content">
-                    <div class="day-section">
-                        <h3>Monday</h3>
-                        <ul>
-                            <li>Math class - 9:00 AM</li>
-                            <li>Study for Science test - 3:00 PM</li>
-                        </ul>
-                    </div>
-                    <div class="day-section">
-                        <h3>Tuesday</h3>
-                        <ul>
-                            <li>English essay due</li>
-                            <li>History reading - 7:00 PM</li>
-                        </ul>
-                    </div>
-                    <div class="day-section">
-                        <h3>Wednesday</h3>
-                        <ul>
-                            <li>Science exam - 10:30 AM</li>
-                            <li>Math homework - 4:00 PM</li>
-                        </ul>
-                    </div>
-                </div>
+                <h1 style="font-size: 32px; color: #26402B; margin-bottom: 30px; font-weight: 600;">My Planner</h1>
+                <button id="generate-btn" onclick="generatePlanner()" style="padding: 12px 24px; background-color: #26402B; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 500; font-size: 16px; transition: background-color 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px;">
+                    Generate
+                </button>
+                <div id="planner-text" style="white-space: pre-wrap; color: #26402B; font-size: 16px; line-height: 2; font-family: 'NeueLeiden', sans-serif; margin-top: 20px;"></div>
             </div>
         </div>
         <div id="aria-ai" class="aria-ai">
@@ -81,6 +66,42 @@
     </main>
 
     <script>
+        // Generate planner function
+        function generatePlanner() {
+            var btn = document.getElementById('generate-btn');
+            var plannerText = document.getElementById('planner-text');
+            
+            // Disable button and show loading
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            plannerText.textContent = 'Generating your personalized study planner...';
+            
+            // Call the generate endpoint
+            fetch('/planner/generate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.success) {
+                    plannerText.textContent = data.planner_text;
+                } else {
+                    plannerText.textContent = 'Error: ' + (data.error || 'Failed to generate planner');
+                }
+            })
+            .catch(function(error) {
+                plannerText.textContent = 'Error: Failed to generate planner. Please try again.';
+                console.error('Error:', error);
+            })
+            .finally(function() {
+                btn.disabled = false;
+                btn.textContent = 'Generate';
+            });
+        }
+        
         // aria ai form
         var form = document.getElementById('aria-ai-form');
         var input = document.getElementById('aria-ai-input');
@@ -105,5 +126,14 @@
             };
         }
     </script>
+    <style>
+        #generate-btn:hover:not(:disabled) {
+            background-color: #1C402A !important;
+        }
+        #generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
 </body>
 </html>
