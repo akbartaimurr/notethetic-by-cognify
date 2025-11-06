@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Study App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .nav-link:hover { color: #26402B !important; background-color: rgba(0, 0, 0, 0.05) !important; }
+        .nav-link:hover i { color: #26402B !important; }
+    </style>
+</head>
+<body>
+    <div class="sidebar w-64 h-screen flex flex-col" style="background-color: #F5F5F5; font-family: 'NeueLeiden', sans-serif; font-weight: 400; position: fixed; left: 0; top: 0;">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" style="max-width: 200px; margin: 20px auto 10px auto; display: block;">
+        <nav class="flex-1 px-5 pt-8" style="padding-top: 10px; padding-bottom: 10px; font-weight: 500;">
+            <br/>
+            <a href="/" class="flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4" style="background-color: rgba(121, 235, 86, 0.2); color: #26402B; border-bottom-color: rgba(121, 235, 86, 0.4);">
+                <i class="hgi-stroke hgi-home-09 text-2xl" style="color: #26402B;"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/subjects" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4 border-transparent" style="color: #6B7280;">
+                <i class="hgi-stroke hgi-book-03 text-2xl" style="color: #536555;"></i>
+                <span>Subjects</span>
+            </a>
+            <a href="/assignments" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4 border-transparent" style="color: #6B7280;">
+                <i class="hgi-stroke hgi-assignments text-2xl" style="color: #536555;"></i>
+                <span>Assignments</span>
+            </a>
+            <a href="/exams" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4 border-transparent" style="color: #6B7280;">
+                <i class="hgi-stroke hgi-book-01 text-2xl" style="color: #536555;"></i>
+                <span>Exams</span>
+            </a>
+            <a href="/planner" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4 border-transparent" style="color: #6B7280;">
+                <i class="hgi-stroke hgi-calendar-01 text-2xl" style="color: #536555;"></i>
+                <span>My Planner</span>
+            </a>
+        </nav>
+    </div>
+
+    <main class="main-content">
+        <div class="view-area">
+            <div class="view-area-content">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">Welcome back!</h1>
+                    <p class="welcome-subtitle">here is your dashboard analytics</p>
+                </div>
+                <h2 class="dashboard-heading">Dashboard</h2>
+                {% if notifications %}
+                <div class="notifications-section">
+                    {% for notification in notifications %}
+                    <div class="notification-item">
+                        <span class="notification-emoji">{{ notification.emoji }}</span>
+                        <span class="notification-text">{{ notification.message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>Upcoming Assignments</h3>
+                        {% if assignments %}
+                            {% for assignment in assignments %}
+                            <div class="item-row">
+                                <span class="item-emoji">{{ assignment.emoji }}</span>
+                                <span class="item-name">{{ assignment.name }}</span>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No assignments</p>
+                        {% endif %}
+                    </div>
+                    <div class="card">
+                        <h3>Exams Coming Up</h3>
+                        {% if exams %}
+                            {% for exam in exams %}
+                            <div class="item-row">
+                                <span class="item-emoji">{{ exam.emoji }}</span>
+                                <span class="item-name">{{ exam.name }}</span>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No exams</p>
+                        {% endif %}
+                    </div>
+                    <div class="card">
+                        <h3>My Subjects</h3>
+                        {% if subjects %}
+                            {% for subject in subjects %}
+                            <div class="item-row">
+                                <span class="item-name">{{ subject.name }}</span>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No subjects</p>
+                        {% endif %}
+                    </div>
+                    <div class="card">
+                        <h3>Today's Planner</h3>
+                        <p>What's on your schedule?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="aria-ai" class="aria-ai">
+            <div id="aria-ai-messages" class="aria-ai-messages"></div>
+            <form id="aria-ai-form" class="aria-ai-form">
+                <div class="aria-ai-input-wrapper">
+                    <input type="text" id="aria-ai-input" class="aria-ai-input" placeholder="Type your message..." />
+                    <button type="submit" id="aria-ai-button" class="aria-ai-button" disabled>Send</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // aria ai form
+        var form = document.getElementById('aria-ai-form');
+        var input = document.getElementById('aria-ai-input');
+        var button = document.getElementById('aria-ai-button');
+        if (form && input && button) {
+            form.onsubmit = function(e) {
+                e.preventDefault();
+                var msg = input.value;
+                if (!msg) return;
+                input.value = '';
+                button.disabled = true;
+                var container = document.getElementById('aria-ai-messages');
+                container.innerHTML += '<div class="aria-ai-message aria-ai-message-user" style="padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; background-color: #26402B; color: white; margin-left: auto; text-align: right;">' + msg + '</div>';
+                setTimeout(function() {
+                    container.innerHTML += '<div class="aria-ai-message aria-ai-message-bot" style="padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; background-color: rgba(0, 0, 0, 0.05); color: rgba(0, 0, 0, 0.9);">Sorry, AI features are not available yet.</div>';
+                    container.scrollTop = container.scrollHeight;
+                    button.disabled = false;
+                }, 500);
+            };
+            input.oninput = function() {
+                button.disabled = input.value.length == 0;
+            };
+        }
+    </script>
+</body>
+</html>

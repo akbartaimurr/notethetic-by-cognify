@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignments - Study App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .nav-link:hover { color: #26402B !important; background-color: rgba(0, 0, 0, 0.05) !important; }
+        .nav-link:hover i { color: #26402B !important; }
+        .mark-done-btn:hover {
+            background-color: #536555 !important;
+        }
+        .add-assignment-btn:hover {
+            background-color: #536555 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar w-64 h-screen flex flex-col" style="background-color: #F5F5F5; font-family: 'NeueLeiden', sans-serif; font-weight: 400; position: fixed; left: 0; top: 0;">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" style="max-width: 200px; margin: 20px auto 10px auto; display: block;">
+        <nav class="flex-1 px-5 pt-8" style="padding-top: 10px; padding-bottom: 10px; font-weight: 500;">
+            <br/>
+            <a href="/" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4 border-transparent" style="color: #6B7280;">
+                <i class="hgi-stroke hgi-home-09 text-2xl" style="color: #536555;"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/subjects" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4 border-transparent" style="color: #6B7280;">
+                <i class="hgi-stroke hgi-book-03 text-2xl" style="color: #536555;"></i>
+                <span>Subjects</span>
+            </a>
+            <a href="/assignments" class="flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4" style="background-color: rgba(121, 235, 86, 0.2); color: #26402B; border-bottom-color: rgba(121, 235, 86, 0.4);">
+                <i class="hgi-stroke hgi-assignments text-2xl" style="color: #26402B;"></i>
+                <span>Assignments</span>
+            </a>
+            <a href="/exams" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4 border-transparent" style="color: #6B7280;">
+                <i class="hgi-stroke hgi-book-01 text-2xl" style="color: #536555;"></i>
+                <span>Exams</span>
+            </a>
+            <a href="/planner" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 rounded-xl text-lg w-full border-b-4 border-transparent" style="color: #6B7280;">
+                <i class="hgi-stroke hgi-calendar-01 text-2xl" style="color: #536555;"></i>
+                <span>My Planner</span>
+            </a>
+        </nav>
+    </div>
+
+    <main class="main-content">
+        <div class="view-area">
+            <div class="view-area-content">
+                <h1>My Assignments</h1>
+                <br/>
+                <button onclick="document.getElementById('addAssignmentModal').style.display='block'" class="add-assignment-btn" style="padding: 12px 24px; background-color: #26402B; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 500; font-size: 16px; transition: background-color 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">Add Assignment</button>
+                <div class="assignments-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                    {% if assignments %}
+                        {% for assignment in assignments %}
+                        <div class="assignment-card" style="background-color: #F9FAFB; padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; width: 100%; text-align: left; align-items: flex-start;">
+                            <h3 style="margin: 0; color: #26402B; font-size: 16px; text-align: left;">{{ assignment.name }}</h3>
+                            {% if assignment.get('subject') %}
+                            <p style="margin: 0; color: #6B7280; font-size: 13px; text-align: left;">Subject: {{ assignment.subject }}</p>
+                            {% endif %}
+                            {% if assignment.get('due') %}
+                            <p style="margin: 0; color: #6B7280; font-size: 13px; text-align: left;">Due: {{ assignment.due }}</p>
+                            {% endif %}
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px; align-items: flex-start; width: 100%;">
+                                <span class="status-badge" style="padding: 4px 10px; border-radius: 16px; font-size: 12px; font-weight: 500; width: fit-content;  {% if assignment.get('status') == 'completed' %}background-color: #79EB56; color: #26402B;{% elif assignment.get('status') == '' or not assignment.get('status') %}background-color: #ef4444; color: white;{% else %}background-color: #536555; color: white;{% endif %}">
+                                    {% if assignment.get('status') == 'completed' %}Completed{% elif assignment.get('status') == '' or not assignment.get('status') %}Missing{% else %}{{ assignment.status }}{% endif %}
+                                </span>
+                                {% if assignment.get('status') != 'completed' %}
+                                <button onclick="markDone('{{ assignment.id }}')" class="mark-done-btn" style="padding: 6px 14px; background-color: #26402B; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: background-color 0.2s ease; width: fit-content;">Mark Done</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: #6B7280;">No assignments found</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Assignment Modal -->
+        <div id="addAssignmentModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 30px; border-radius: 10px; width: 400px;">
+                <h2 style="margin-bottom: 20px;">Add Assignment</h2>
+                <form id="addAssignmentForm">
+                    <input type="text" id="assignmentName" placeholder="Assignment name" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ddd; box-sizing: border-box;">
+                    <input type="date" id="assignmentDueDate" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ddd; box-sizing: border-box;">
+                    <select id="assignmentStatus" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ddd; box-sizing: border-box;">
+                        <option value="">Select status (optional)</option>
+                        <option value="missing">Missing</option>
+                        <option value="in progress">In Progress</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" style="flex: 1; padding: 10px; background-color: #26402B; color: white; border: none; border-radius: 5px; cursor: pointer;">Add</button>
+                        <button type="button" onclick="document.getElementById('addAssignmentModal').style.display='none'" style="flex: 1; padding: 10px; background-color: #ccc; color: black; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div id="aria-ai" class="aria-ai">
+            <div id="aria-ai-messages" class="aria-ai-messages"></div>
+            <form id="aria-ai-form" class="aria-ai-form">
+                <div class="aria-ai-input-wrapper">
+                    <input type="text" id="aria-ai-input" class="aria-ai-input" placeholder="Type your message..." />
+                    <button type="submit" id="aria-ai-button" class="aria-ai-button" disabled>Send</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // add assignment form
+        document.getElementById('addAssignmentForm').onsubmit = function(e) {
+            e.preventDefault();
+            var name = document.getElementById('assignmentName').value;
+            if (!name) return;
+            fetch('/assignments/add', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({
+                    name: name, 
+                    due: document.getElementById('assignmentDueDate').value, 
+                    status: document.getElementById('assignmentStatus').value
+                }) 
+            }).then(function() { location.reload(); });
+        };
+        
+        // mark assignment as done
+        function markDone(assignmentId) {
+            fetch('/assignments/mark-done', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({id: assignmentId}) 
+            }).then(function() { location.reload(); });
+        }
+        
+        // aria ai form
+        var form = document.getElementById('aria-ai-form');
+        var input = document.getElementById('aria-ai-input');
+        var button = document.getElementById('aria-ai-button');
+        if (form && input && button) {
+            form.onsubmit = function(e) {
+                e.preventDefault();
+                var msg = input.value;
+                if (!msg) return;
+                input.value = '';
+                button.disabled = true;
+                var container = document.getElementById('aria-ai-messages');
+                container.innerHTML += '<div class="aria-ai-message aria-ai-message-user" style="padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; background-color: #26402B; color: white; margin-left: auto; text-align: right;">' + msg + '</div>';
+                setTimeout(function() {
+                    container.innerHTML += '<div class="aria-ai-message aria-ai-message-bot" style="padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; background-color: rgba(0, 0, 0, 0.05); color: rgba(0, 0, 0, 0.9);">Sorry, AI features are not available yet.</div>';
+                    container.scrollTop = container.scrollHeight;
+                    button.disabled = false;
+                }, 500);
+            };
+            input.oninput = function() {
+                button.disabled = input.value.length == 0;
+            };
+        }
+    </script>
+</body>
+</html>
