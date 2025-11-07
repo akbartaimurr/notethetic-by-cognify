@@ -19,20 +19,12 @@ def generate_study_planner_api(subjects, hours_available=8, days_per_week=5, wee
             return "Error: No subjects provided."
 
         # Build subjectTimeData with actual DB IDs
+        # Each item needs: subjectId (int), averageTimeInMinutes (int)
         subject_time_data = []
         for s in subjects:
-            # get id from either 'Id' or 'id' field
-            subject_id = s.get("Id") or s.get("id")
-            if subject_id is None:
-                return f"Error: Subject missing 'Id' or 'id' field: {s}"
-            # make sure it's an integer
-            subject_id = int(subject_id)
-            # get average time from either 'AverageTimeInMinutes' or 'averagetimeinminutes'
-            avg_time = s.get("AverageTimeInMinutes") or s.get("averagetimeinminutes") or 60
-            avg_time = int(avg_time)
             subject_time_data.append({
-                "subjectId": subject_id,
-                "averageTimeInMinutes": avg_time
+                "subjectId": int(s['id']),
+                "averageTimeInMinutes": int(s.get('averagetimeinminutes', 60))
             })
 
         # Build assignments list (up to 10, as API limits)
@@ -44,11 +36,11 @@ def generate_study_planner_api(subjects, hours_available=8, days_per_week=5, wee
                     assignment_names.append(name)
 
         request_data = {
-            "subjectTimeData": subject_time_data,
-            "hoursAvailablePerDay": hours_available,
-            "daysPerWeek": days_per_week,
-            "weeksToSchedule": weeks_to_schedule,
-            "assignments": assignment_names
+            "SubjectTimeData": subject_time_data,  # List of {subjectId: int, averageTimeInMinutes: int}
+            "HoursAvailablePerDay": int(hours_available),  # int
+            "DaysPerWeek": int(days_per_week),  # int
+            "WeeksToSchedule": int(weeks_to_schedule),  # int
+            "Assignments": assignment_names  # List<string>
         }
 
         api_url = "https://study-planner-api-n2ya.onrender.com/api/Ai/GenerateTimePlanner"

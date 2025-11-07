@@ -5,14 +5,7 @@ def get_subjects(user_id):
     try:
         supabase = get_supabase_admin()
         result = supabase.table('subjects').select('*').eq('userid', user_id).execute()
-        # make sure id is an integer
-        subjects = result.data
-        for s in subjects:
-            if 'id' in s:
-                s['id'] = int(s['id'])
-            if 'Id' in s:
-                s['Id'] = int(s['Id'])
-        return subjects
+        return result.data
     except:
         return []
 

@@ -169,7 +169,7 @@ def subjects():
     for s in subjects:
         subject_names.append({
             'name': s.get('subject', ''),
-            'id': s.get('id', s.get('Id', 0))
+            'id': s['id']
         })
     
     return render_template('subjects.html', subjects=subject_names)
