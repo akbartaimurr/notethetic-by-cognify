@@ -21,11 +21,17 @@ def generate_study_planner_api(subjects, hours_available=8, days_per_week=5, wee
         # Build subjectTimeData with actual DB IDs
         subject_time_data = []
         for s in subjects:
-            if "Id" not in s:
-                return f"Error: Subject missing 'Id' field: {s}"
-            avg_time = s.get("AverageTimeInMinutes") or 60
+            # get id from either 'Id' or 'id' field
+            subject_id = s.get("Id") or s.get("id")
+            if subject_id is None:
+                return f"Error: Subject missing 'Id' or 'id' field: {s}"
+            # make sure it's an integer
+            subject_id = int(subject_id)
+            # get average time from either 'AverageTimeInMinutes' or 'averagetimeinminutes'
+            avg_time = s.get("AverageTimeInMinutes") or s.get("averagetimeinminutes") or 60
+            avg_time = int(avg_time)
             subject_time_data.append({
-                "subjectId": s["Id"],
+                "subjectId": subject_id,
                 "averageTimeInMinutes": avg_time
             })
 
