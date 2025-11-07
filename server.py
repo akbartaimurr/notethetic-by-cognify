@@ -13,37 +13,37 @@ from dotenv import load_dotenv
 
 
 
-# I USED GOOGLE FOR THE SIGN IN PROCESS AND IDEA OF LIKE COMMUNCIATING WITH JAVASCRIPT TO STORE THE TOKENS
+# used google for sign in and js to store tokens basically
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'change-this-secret-key')
 
-# check if theyre logged in
+# check if they logged in
 def check_login():
     return 'access_token' in session
 
 # login page
 @app.route('/signin')
 def signin():
-    # if theyre already logged in just send them to dashboard
+    # if they already logged in just send em to dashboard
     if check_login():
         return redirect('/')
     return render_template('signin.html')
 
-# when they click google login
+# when they click google login button
 @app.route('/auth/google')
 def google_login():
     login_url = get_google_login_url()
     return redirect(login_url)
 
-# google sends them back here after login
+# google sends em back here after login
 @app.route('/auth/callback')
 def callback():
     return redirect('/signin')
 
-# stack overflow code to save tokens
+# stack overflow code to save tokens lol
 @app.route('/auth/save-tokens', methods=['POST'])
 def save_tokens():
     data = request.get_json()
@@ -79,7 +79,7 @@ def dashboard():
     
     user_id = session['user'].get('id')
     
-    # get dashboard data
+    # grab dashboard data
     dashboard_data = get_dashboard_data(user_id)
     
     return render_template('dashboard.html', 
@@ -97,7 +97,7 @@ def exams():
     
     user_id = session['user'].get('id')
     
-    # get exams
+    # grab exams
     exams_list = get_exams(user_id)
     
     return render_template('exams.html', exams=exams_list)
@@ -111,7 +111,7 @@ def assignments():
     
     user_id = session['user'].get('id')
     
-    # get assignments
+    # grab assignments
     assignments_list = get_assignments(user_id)
     
     return render_template('assignments.html', assignments=assignments_list)
@@ -163,9 +163,11 @@ def subjects():
     
     user_id = session['user'].get('id')
     
-    # get subjects
+    # grab subjects
     subjects = get_subjects(user_id)
-    subject_names = [{'name': s.get('subject', '')} for s in subjects]
+    subject_names = []
+    for s in subjects:
+        subject_names.append({'name': s.get('subject', '')})
     
     return render_template('subjects.html', subjects=subject_names)
 
@@ -179,13 +181,13 @@ def add_subject_route():
     data = request.get_json()
     subject_name = data.get('subject')
     
-    if not subject_name: # error check  for null
+    if not subject_name: # check if empty
         return jsonify({'success': False, 'error': 'Subject name required'}), 400
     
     if add_subject(user_id, subject_name):
-        return jsonify({'success': True}) # if the thing works it returns true
+        return jsonify({'success': True}) # if it works return true
     else:
-        return jsonify({'success': False, 'error': 'Failed to add subject'}), 500 # vice verca it returns false
+        return jsonify({'success': False, 'error': 'Failed to add subject'}), 500 # if it breaks return false
 
 # add exam endpoint
 @app.route('/exams/add', methods=['POST'])
@@ -242,24 +244,24 @@ def generate_planner():
     
     user_id = session['user'].get('id')
     
-    # get all data needed for planner
+    # grab all the data we need for planner
     subjects_list = get_subjects(user_id)
     user_data = get_user_data(user_id)
     
-    # calculate total time per day from subjects
+    # figure out total time per day from subjects
     total_time_per_day = 0
     for subject in subjects_list:
         avg_time = subject.get('averagetimeinminutes') or 60
         if avg_time:
             total_time_per_day += avg_time
     
-    # get data from userdata columns
+    # grab data from userdata columns
     hours_available = user_data.get('hoursavailable') if user_data else 8
     days_per_week = user_data.get('daysperweek') if user_data else 5
     weeks_to_schedule = user_data.get('weekstoschedule') if user_data else 4
     
-    # generate study planner using OpenAI
-    # Send whole subjects with all columns
+    # make study planner using openai
+    # send all subjects with all their stuff
     planner_text = generate_study_planner(
         subjects=subjects_list,
         total_time_per_day=total_time_per_day,
@@ -279,7 +281,7 @@ def data():
     
     user_id = session['user'].get('id')
     
-    # get user data
+    # grab user data
     user_data = get_user_data(user_id)
     
     return render_template('data.html', user_data=user_data)
@@ -302,7 +304,7 @@ def update_data_route():
     else:
         return jsonify({'success': False, 'error': 'Failed to update data'}), 500
 
-# run the server
+# start the server
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 3000))
     app.run(debug=os.getenv('FLASK_ENV') == 'development', host='0.0.0.0', port=port)

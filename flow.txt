@@ -1,0 +1,329 @@
+NOTETHETIC APP FLOW DOCUMENTATION
+===================================
+
+LOGIN PROCESS FLOW
+------------------
+User visits /signin
+  -> server.py signin() function checks if already logged in
+  -> If logged in -> redirect to dashboard (/)
+  -> If not logged in -> show signin.html page
+
+User clicks "Sign in with Google" button
+  -> Goes to /auth/google route
+  -> server.py calls login.py get_google_login_url()
+  -> login.py connects to Supabase and gets Google OAuth URL
+  -> User redirected to Google login page
+  -> User logs in with Google account
+  -> Google redirects back to /signin page with tokens in URL hash
+
+signin.html JavaScript detects tokens in URL hash
+  -> Extracts access_token and refresh_token from hash
+  -> Sends POST request to /auth/save-tokens
+  -> server.py save_tokens() function receives tokens
+  -> Gets user info from Supabase using access_token
+  -> Saves tokens and user info to Flask session
+  -> JavaScript redirects to dashboard (/)
+
+User clicks logout
+  -> Goes to /logout route
+  -> server.py calls login.py logout_user()
+  -> Clears Flask session
+  -> Redirects back to /signin
+
+
+DASHBOARD PAGE FLOW (/)
+-----------------------
+User visits dashboard
+  -> server.py dashboard() function checks if logged in
+  -> If not logged in -> redirect to /signin
+  -> Gets user_id from session
+  -> Calls dashboard.py get_dashboard_data(user_id)
+    -> dashboard.py gets assignments from assignments.py get_assignments()
+    -> dashboard.py gets exams from exams.py get_exams()
+    -> dashboard.py gets subjects from subjects.py get_subjects()
+    -> dashboard.py gets user_data from userdata.py get_user_data()
+    -> Each function connects to Supabase database
+    -> Processes data into lists with for loops
+    -> Makes notifications based on assignments and exams
+    -> Returns all data as dictionary
+  -> server.py sends data to dashboard.html template
+  -> dashboard.html displays notifications, assignments, exams, subjects
+
+
+SUBJECTS PAGE FLOW (/subjects)
+------------------------------
+User visits /subjects
+  -> server.py subjects() function checks if logged in
+  -> If not logged in -> redirect to /signin
+  -> Gets user_id from session
+  -> Calls subjects.py get_subjects(user_id)
+    -> subjects.py uses login.py get_supabase_admin()
+    -> Queries Supabase 'subjects' table WHERE userid = user_id
+    -> Returns list of subjects
+  -> server.py processes subjects into simple list format
+  -> Sends to subjects.html template
+  -> subjects.html displays all subjects
+
+User adds new subject
+  -> Clicks "Add Subject" button in subjects.html
+  -> JavaScript opens modal form
+  -> User fills form and submits
+  -> JavaScript sends POST to /subjects/add
+  -> server.py add_subject_route() receives data
+  -> Calls subjects.py add_subject(user_id, subject_name)
+    -> subjects.py connects to Supabase
+    -> Inserts new row into 'subjects' table
+    -> Returns True if success, False if error
+  -> server.py returns JSON response
+  -> JavaScript reloads page to show new subject
+
+
+ASSIGNMENTS PAGE FLOW (/assignments)
+-------------------------------------
+User visits /assignments
+  -> server.py assignments() function checks if logged in
+  -> If not logged in -> redirect to /signin
+  -> Gets user_id from session
+  -> Calls assignments.py get_assignments(user_id)
+    -> assignments.py uses login.py get_supabase_admin()
+    -> Queries Supabase 'assignments' table WHERE userid = user_id
+    -> Returns list of assignments
+  -> Sends to assignments.html template
+  -> assignments.html displays all assignments
+
+User adds new assignment
+  -> Clicks "Add Assignment" button
+  -> JavaScript opens modal form
+  -> User fills form (name, due date, status)
+  -> JavaScript sends POST to /assignments/add
+  -> server.py add_assignment_route() receives data
+  -> Calls assignments.py add_assignment(user_id, name, due, status)
+    -> assignments.py connects to Supabase
+    -> Inserts new row into 'assignments' table
+    -> Returns True if success, False if error
+  -> server.py returns JSON response
+  -> JavaScript reloads page
+
+User marks assignment as done
+  -> Clicks "Mark Done" button on assignment
+  -> JavaScript sends POST to /assignments/mark-done
+  -> server.py mark_done_route() receives assignment_id
+  -> Calls assignments.py mark_assignment_done(user_id, assignment_id)
+    -> assignments.py connects to Supabase
+    -> Updates 'assignments' table SET status = 'completed' WHERE id = assignment_id
+    -> Returns True if success, False if error
+  -> server.py returns JSON response
+  -> JavaScript reloads page
+
+
+EXAMS PAGE FLOW (/exams)
+-------------------------
+User visits /exams
+  -> server.py exams() function checks if logged in
+  -> If not logged in -> redirect to /signin
+  -> Gets user_id from session
+  -> Calls exams.py get_exams(user_id)
+    -> exams.py uses login.py get_supabase_admin()
+    -> Queries Supabase 'exams' table WHERE userid = user_id
+    -> Returns list of exams
+  -> Sends to exams.html template
+  -> exams.html displays all exams
+
+User adds new exam
+  -> Clicks "Add Exam" button
+  -> JavaScript opens modal form
+  -> User fills form (name, date)
+  -> JavaScript sends POST to /exams/add
+  -> server.py add_exam_route() receives data
+  -> Calls exams.py add_exam(user_id, name, date)
+    -> exams.py connects to Supabase
+    -> Inserts new row into 'exams' table
+    -> Returns True if success, False if error
+  -> server.py returns JSON response
+  -> JavaScript reloads page
+
+User deletes exam
+  -> Clicks "Delete" button on exam
+  -> JavaScript confirms deletion
+  -> JavaScript sends POST to /exams/delete
+  -> server.py delete_exam_route() receives exam_id
+  -> Calls exams.py delete_exam(user_id, exam_id)
+    -> exams.py connects to Supabase
+    -> Deletes row from 'exams' table WHERE id = exam_id AND userid = user_id
+    -> Returns True if success, False if error
+  -> server.py returns JSON response
+  -> JavaScript reloads page
+
+
+PLANNER PAGE FLOW (/planner)
+-----------------------------
+User visits /planner
+  -> server.py planner() function checks if logged in
+  -> If not logged in -> redirect to /signin
+  -> Returns planner.html template (no data needed yet)
+
+User clicks "Generate" button
+  -> JavaScript sends POST to /planner/generate
+  -> server.py generate_planner() function receives request
+  -> Gets user_id from session
+  -> Calls subjects.py get_subjects(user_id) to get all subjects
+  -> Calls userdata.py get_user_data(user_id) to get user settings
+  -> Calculates total_time_per_day by looping through subjects
+  -> Gets hours_available, days_per_week, weeks_to_schedule from user_data
+  -> Calls planner.py generate_study_planner() with all data
+    -> planner.py connects to OpenAI API
+    -> Builds prompt with all subject data and user settings
+    -> Sends request to OpenAI GPT-4
+    -> Gets back formatted study planner text
+    -> Returns planner text
+  -> server.py returns JSON with planner_text
+  -> JavaScript displays planner text on page
+
+
+DATA PAGE FLOW (/data)
+----------------------
+User visits /data
+  -> server.py data() function checks if logged in
+  -> If not logged in -> redirect to /signin
+  -> Gets user_id from session
+  -> Calls userdata.py get_user_data(user_id)
+    -> userdata.py uses login.py get_supabase_admin()
+    -> Queries Supabase 'userdata' table WHERE userid = user_id
+    -> Returns user data (hoursavailable, daysperweek, weekstoschedule)
+  -> Sends to data.html template
+  -> data.html displays form with current values
+
+User updates data
+  -> Fills form with new values (hours, days, weeks)
+  -> Clicks "Save" button
+  -> JavaScript sends POST to /data/update
+  -> server.py update_data_route() receives data
+  -> Calls data.py update_user_data(user_id, hours, days, weeks)
+    -> data.py connects to Supabase
+    -> Deletes old user data row
+    -> Inserts new user data row with updated values
+    -> Returns True if success, False if error
+  -> server.py returns JSON response
+  -> Form stays on page (no reload needed)
+
+
+DATA FLOW BETWEEN FILES
+========================
+
+server.py (Main Flask App)
+  -> Entry point for all routes
+  -> Handles HTTP requests
+  -> Checks authentication
+  -> Calls functions from other modules
+  -> Returns HTML templates or JSON responses
+
+login.py
+  -> Handles Supabase connection
+  -> get_supabase() - regular connection
+  -> get_supabase_admin() - admin connection (used by all data modules)
+  -> get_google_login_url() - creates Google OAuth URL
+  -> logout_user() - signs out from Supabase
+
+dashboard.py
+  -> get_dashboard_data(user_id)
+  -> Calls: assignments.py, exams.py, subjects.py, userdata.py
+  -> Processes all data together
+  -> Makes notifications
+  -> Returns combined data dictionary
+
+subjects.py
+  -> get_subjects(user_id) - reads from Supabase 'subjects' table
+  -> add_subject(user_id, name) - inserts into Supabase 'subjects' table
+  -> Uses login.py get_supabase_admin()
+
+assignments.py
+  -> get_assignments(user_id) - reads from Supabase 'assignments' table
+  -> add_assignment(user_id, name, due, status) - inserts into Supabase
+  -> mark_assignment_done(user_id, id) - updates status in Supabase
+  -> Uses login.py get_supabase_admin()
+
+exams.py
+  -> get_exams(user_id) - reads from Supabase 'exams' table
+  -> add_exam(user_id, name, date) - inserts into Supabase
+  -> delete_exam(user_id, id) - deletes from Supabase
+  -> Uses login.py get_supabase_admin()
+
+userdata.py
+  -> get_user_data(user_id) - reads from Supabase 'userdata' table
+  -> Uses login.py get_supabase_admin()
+
+data.py
+  -> update_user_data(user_id, hours, days, weeks) - updates Supabase 'userdata' table
+  -> Uses login.py get_supabase_admin()
+
+planner.py
+  -> generate_study_planner() - calls OpenAI API
+  -> Takes subjects, time data, user settings
+  -> Returns formatted planner text
+
+
+DATABASE STRUCTURE (Supabase)
+=============================
+All tables have 'userid' column to link data to users
+
+subjects table:
+  - id (auto)
+  - userid (links to user)
+  - subject (subject name)
+  - averagetimeinminutes (optional)
+
+assignments table:
+  - id (auto)
+  - userid (links to user)
+  - name (assignment name)
+  - due (due date)
+  - status (completed, pending, missing, etc)
+
+exams table:
+  - id (auto)
+  - userid (links to user)
+  - name (exam name)
+  - date (exam date)
+
+userdata table:
+  - id (auto)
+  - userid (links to user)
+  - hoursavailable (hours per day)
+  - daysperweek (days per week)
+  - weekstoschedule (weeks to plan)
+
+
+AUTHENTICATION FLOW
+===================
+Every protected route:
+  1. Checks check_login() function
+  2. If not logged in -> redirect to /signin
+  3. If logged in -> gets user_id from session['user']['id']
+  4. Uses user_id to query database for user's data only
+
+Session stores:
+  - access_token (for Supabase auth)
+  - refresh_token (for refreshing auth)
+  - user (dictionary with id and email)
+
+
+FRONTEND TO BACKEND COMMUNICATION
+==================================
+HTML pages use JavaScript fetch() to send requests:
+
+GET requests (page loads):
+  - User visits URL -> server.py route -> returns HTML template
+  - Template rendered with data from database
+
+POST requests (form submissions):
+  - JavaScript collects form data
+  - Sends POST to route (e.g., /subjects/add)
+  - server.py receives JSON data
+  - Calls appropriate function
+  - Returns JSON response
+  - JavaScript handles response (usually reloads page)
+
+All POST endpoints return JSON:
+  - {'success': True} if it worked
+  - {'success': False, 'error': 'message'} if it failed
+

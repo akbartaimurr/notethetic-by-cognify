@@ -5,7 +5,7 @@ def update_user_data(user_id, hours_available, days_per_week, weeks_to_schedule)
     try:
         supabase = get_supabase_admin()
         
-        # Delete existing and insert new
+        # delete existing and insert new
         supabase.table('userdata').delete().eq('userid', user_id).execute()
         
         supabase.table('userdata').insert({

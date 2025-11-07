@@ -19,17 +19,20 @@ def generate_study_planner(subjects, total_time_per_day, hours_available, days_p
         str: Formatted study planner text
     """
     try:
-        # Initialize OpenAI client
+        # set up openai client
         api_key = os.getenv('OPENAI_API_KEY')
         if not api_key:
             return "Error: OPENAI_API_KEY not found in environment variables"
         
         client = OpenAI(api_key=api_key)
         
-        # Build subject list - send all subject data
-        subject_list = "\n".join([f"- {s.get('subject', 'Unknown Subject')}: {s.get('averagetimeinminutes', 60)} minutes per session" for s in subjects])
+        # make subject list - send all subject data
+        subject_lines = []
+        for s in subjects:
+            subject_lines.append(f"- {s.get('subject', 'Unknown Subject')}: {s.get('averagetimeinminutes', 60)} minutes per session")
+        subject_list = "\n".join(subject_lines)
         
-        # Build the prompt exactly like C# version
+        # make the prompt exactly like c# version
         prompt = f"Create a personalized study planner based on the following subject time requirements:\n\n" + \
                 f"{subject_list}\n\n" + \
                 f"Total study time needed per cycle: {total_time_per_day} minutes ({total_time_per_day / 60.0:.1f} hours)\n" + \
@@ -44,7 +47,7 @@ def generate_study_planner(subjects, total_time_per_day, hours_available, days_p
                 f"5. Provides daily and weekly study breakdowns\n\n" + \
                 f"IMPORTANT: Do NOT use markdown formatting (no **, ##, *, etc.). Instead, use separation lines (━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━) and LOTS of emojis throughout your response. Make it visually appealing with emojis for subjects, time slots, breaks, and activities."
 
-        # Call OpenAI API
+        # call openai api
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[

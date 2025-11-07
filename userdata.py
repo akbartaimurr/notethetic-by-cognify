@@ -1,6 +1,6 @@
 from login import get_supabase_admin
 
-# get user data
+# grab user data
 def get_user_data(user_id):
     try:
         supabase = get_supabase_admin()

@@ -117,7 +117,7 @@
     </main>
 
     <script>
-        // add assignment form
+        // add assignment form stuff
         document.getElementById('addAssignmentForm').onsubmit = function(e) {
             e.preventDefault();
             var name = document.getElementById('assignmentName').value;
@@ -133,7 +133,7 @@
             }).then(function() { location.reload(); });
         };
         
-        // mark assignment as done
+        // mark assignment as done function
         function markDone(assignmentId) {
             fetch('/assignments/mark-done', { 
                 method: 'POST', 
@@ -142,7 +142,7 @@
             }).then(function() { location.reload(); });
         }
         
-        // aria ai form
+        // aria ai form stuff
         var form = document.getElementById('aria-ai-form');
         var input = document.getElementById('aria-ai-input');
         var button = document.getElementById('aria-ai-button');

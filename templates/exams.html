@@ -103,7 +103,7 @@
     </main>
 
     <script>
-        // add exam form
+        // add exam form stuff
         document.getElementById('addExamForm').onsubmit = function(e) {
             e.preventDefault();
             var name = document.getElementById('examName').value;
@@ -118,7 +118,7 @@
             }).then(function() { location.reload(); });
         };
         
-        // delete exam
+        // delete exam function
         function deleteExam(examId) {
             if (!confirm('Are you sure you want to delete this exam?')) return;
             fetch('/exams/delete', { 
@@ -128,7 +128,7 @@
             }).then(function() { location.reload(); });
         }
         
-        // aria ai form
+        // aria ai form stuff
         var form = document.getElementById('aria-ai-form');
         var input = document.getElementById('aria-ai-input');
         var button = document.getElementById('aria-ai-button');

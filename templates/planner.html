@@ -66,17 +66,17 @@
     </main>
 
     <script>
-        // Generate planner function
+        // make planner function
         function generatePlanner() {
             var btn = document.getElementById('generate-btn');
             var plannerText = document.getElementById('planner-text');
             
-            // Disable button and show loading
+            // disable button and show loading
             btn.disabled = true;
             btn.textContent = 'Generating...';
             plannerText.textContent = 'Generating your personalized study planner...';
             
-            // Call the generate endpoint
+            // call the generate endpoint
             fetch('/planner/generate', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -102,7 +102,7 @@
             });
         }
         
-        // aria ai form
+        // aria ai form stuff
         var form = document.getElementById('aria-ai-form');
         var input = document.getElementById('aria-ai-input');
         var button = document.getElementById('aria-ai-button');

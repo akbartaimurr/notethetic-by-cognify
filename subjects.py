@@ -1,6 +1,6 @@
 from login import get_supabase_admin
 
-# get all subjects for a user
+# grab all subjects for a user
 def get_subjects(user_id):
     try:
         supabase = get_supabase_admin()

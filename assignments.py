@@ -1,6 +1,6 @@
 from login import get_supabase_admin
 
-# get all assignments for a user
+# grab all assignments for a user
 def get_assignments(user_id):
     try:
         supabase = get_supabase_admin()
@@ -9,7 +9,7 @@ def get_assignments(user_id):
     except:
         return []
 
-# mark assignment as completed
+# mark assignment as done
 def mark_assignment_done(user_id, assignment_id):
     try:
         supabase = get_supabase_admin()

@@ -32,7 +32,7 @@ def get_google_login_url():
     })
     return result.url
 
-# log them out
+# log em out
 def logout_user():
     supabase = get_supabase()
     supabase.auth.sign_out()
