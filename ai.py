@@ -50,7 +50,10 @@ def generate_study_planner_api(subjects, hours_available, days_per_week, weeks_t
         response = requests.post(
             api_url,
             json=request_data,
-            headers={'Content-Type': 'application/json'},
+            headers={
+                'Content-Type': 'application/json',
+                'X-API-Key': 'CbsmBuKrAydc7Ito9eQRfwzUYivlPxpS'
+            },
             timeout=30
         )
         
