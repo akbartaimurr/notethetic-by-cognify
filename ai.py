@@ -45,7 +45,7 @@ def generate_study_planner_api(subjects, hours_available, days_per_week, weeks_t
         
         # send request to API
         # update this URL based on the actual endpoint from swagger docs
-        api_url = "https://study-planner-api-n2ya.onrender.com/api/planner"
+        api_url = "https://study-planner-api-n2ya.onrender.com/api/Ai/GenerateTimePlanner"
         
         response = requests.post(
             api_url,
