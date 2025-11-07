@@ -5,7 +5,7 @@ from subjects import get_subjects, add_subject
 from assignments import get_assignments, mark_assignment_done, add_assignment
 from exams import get_exams, delete_exam, add_exam
 from userdata import get_user_data
-from planner import generate_study_planner
+from ai import generate_study_planner_api
 from data import update_user_data
 import os
 import json
@@ -247,27 +247,21 @@ def generate_planner():
     # grab all the data we need for planner
     subjects_list = get_subjects(user_id)
     user_data = get_user_data(user_id)
-    
-    # figure out total time per day from subjects
-    total_time_per_day = 0
-    for subject in subjects_list:
-        avg_time = subject.get('averagetimeinminutes') or 60
-        if avg_time:
-            total_time_per_day += avg_time
+    assignments_list = get_assignments(user_id)
     
     # grab data from userdata columns
     hours_available = user_data.get('hoursavailable') if user_data else 8
     days_per_week = user_data.get('daysperweek') if user_data else 5
     weeks_to_schedule = user_data.get('weekstoschedule') if user_data else 4
     
-    # make study planner using openai
+    # make study planner using external API
     # send all subjects with all their stuff
-    planner_text = generate_study_planner(
+    planner_text = generate_study_planner_api(
         subjects=subjects_list,
-        total_time_per_day=total_time_per_day,
         hours_available=hours_available,
         days_per_week=days_per_week,
-        weeks_to_schedule=weeks_to_schedule
+        weeks_to_schedule=weeks_to_schedule,
+        assignments=assignments_list
     )
     
     return jsonify({'success': True, 'planner_text': planner_text})
