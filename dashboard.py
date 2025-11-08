@@ -1,7 +1,7 @@
 from assignments import get_assignments
 from exams import get_exams
 from subjects import get_subjects
-from userdata import get_user_data
+from data import get_user_data
 
 
 def get_dashboard_data(user_id):
