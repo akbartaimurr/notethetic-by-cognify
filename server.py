@@ -98,12 +98,16 @@ def dashboard():
     # get all dashboard data
     dashboard_data = get_dashboard_data(user_id)
     
+    # get user email from session
+    user_email = session['user'].get('email', '')
+    
     # render template with data
     return render_template('dashboard.html', 
                          notifications=dashboard_data['notifications'],
                          assignments=dashboard_data['assignment_names'],
                          exams=dashboard_data['exam_names'],
-                         subjects=dashboard_data['subject_names'])
+                         subjects=dashboard_data['subject_names'],
+                         user_email=user_email)
 
 
 
@@ -302,7 +306,7 @@ def generate_planner():
     assignments_list = get_assignments(user_id)
     
     # get hours and days from user data
-    if user_data:
+    if user_data: 
         hours_available = user_data.get('hoursavailable')
         days_per_week = user_data.get('daysperweek')
         weeks_to_schedule = user_data.get('weekstoschedule')

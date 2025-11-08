@@ -41,6 +41,10 @@
                 <i class="hgi-stroke hgi-settings-01 text-2xl" style="color: #536555;"></i>
                 <span>Study Data</span>
             </a>
+            <a href="/logout" class="nav-link flex items-center gap-2 px-4 py-1 mb-2 text-lg w-full" style="color: #6B7280; border-radius: 9999px; border: 2px solid #F5F5F5;">
+                <i class="hgi-stroke hgi-user-01 text-2xl" style="color: #536555;"></i>
+                <span>Switch Account</span>
+            </a>
         </nav>
     </div>
 
@@ -48,7 +52,7 @@
         <div class="view-area">
             <div class="view-area-content">
                 <div class="welcome-section">
-                    <h1 class="welcome-title">Welcome back!</h1>
+                    <h1 class="welcome-title">Welcome back! <span>{{ user_email }}</span></h1>
                     <p class="welcome-subtitle">Your notifications, assignments and exams are here for you, you can ask me questions about your study content on the right of the page!</p>
                 </div>
                 <h2 class="dashboard-heading">Reminders ></h2>
