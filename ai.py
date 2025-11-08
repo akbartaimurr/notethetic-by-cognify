@@ -22,12 +22,9 @@ def generate_study_planner_api(subjects, hours_available=8, days_per_week=5, wee
         # Each item needs: subjectId (int), averageTimeInMinutes (int)
         subject_time_data = []
         for s in subjects:
-            avg_time = s.get('averagetimeinminutes')
-            if avg_time is None:
-                avg_time = 60
             subject_time_data.append({
                 "subjectId": int(s['id']),
-                "averageTimeInMinutes": int(avg_time)
+                "averageTimeInMinutes": int(s.get('averagetimeinminutes', 60))
             })
 
         # Build assignments list (up to 10, as API limits)
@@ -39,14 +36,14 @@ def generate_study_planner_api(subjects, hours_available=8, days_per_week=5, wee
                     assignment_names.append(name)
 
         request_data = {
-            "SubjectTimeData": subject_time_data,  # List of {subjectId: int, averageTimeInMinutes: int}
-            "HoursAvailablePerDay": int(hours_available) if hours_available is not None else 8,  # int
-            "DaysPerWeek": int(days_per_week) if days_per_week is not None else 5,  # int
-            "WeeksToSchedule": int(weeks_to_schedule) if weeks_to_schedule is not None else 4,  # int
-            "Assignments": assignment_names  # List<string>
+            "subjectTimeData": subject_time_data,  # List of {subjectId: int, averageTimeInMinutes: int}
+            "hoursAvailablePerDay": int(hours_available) if hours_available is not None else 8,  # int
+            "daysPerWeek": int(days_per_week) if days_per_week is not None else 5,  # int
+            "weeksToSchedule": int(weeks_to_schedule) if weeks_to_schedule is not None else 4,  # int
+            "assignments": assignment_names  # List<string>
         }
 
-        api_url = "https://study-planner-api-n2ya.onrender.com/api/Ai/GenerateTimePlanner"
+        api_url = "https://study-planner-api-wes0.onrender.com//api/Ai/GenerateTimePlanner"
 
         response = requests.post(
             api_url,

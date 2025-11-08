@@ -257,6 +257,14 @@ def generate_planner():
     days_per_week = user_data.get('daysperweek') if user_data else 5
     weeks_to_schedule = user_data.get('weekstoschedule') if user_data else 4
     
+    # make sure values are not None
+    if hours_available is None:
+        hours_available = 8
+    if days_per_week is None:
+        days_per_week = 5
+    if weeks_to_schedule is None:
+        weeks_to_schedule = 4
+    
     # make study planner using external API
     # send all subjects with all their stuff
     planner_text = generate_study_planner_api(
