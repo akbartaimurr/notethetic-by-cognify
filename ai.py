@@ -42,7 +42,7 @@ def generate_study_planner_api(subjects, hours_available=8, days_per_week=5, wee
             "assignments": assignment_names
         }
 
-        api_url = "https://study-planner-api-wes0.onrender.com//api/Ai/GenerateTimePlanner"
+        api_url = "https://study-planner-api-wes0.onrender.com/api/Ai/GenerateTimePlanner"
 
         response = requests.post(
             api_url,
