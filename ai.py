@@ -19,12 +19,11 @@ def generate_study_planner_api(subjects, hours_available=8, days_per_week=5, wee
             return "Error: No subjects provided."
 
         # Build subjectTimeData with actual DB IDs
-        # Each item needs: subjectId (int), averageTimeInMinutes (int)
         subject_time_data = []
         for s in subjects:
             subject_time_data.append({
-                "subjectId": int(s['id']),
-                "averageTimeInMinutes": int(s.get('averagetimeinminutes', 60))
+                "subjectId": s['id'],
+                "averageTimeInMinutes": s.get('averagetimeinminutes', 60)
             })
 
         # Build assignments list (up to 10, as API limits)
@@ -36,11 +35,11 @@ def generate_study_planner_api(subjects, hours_available=8, days_per_week=5, wee
                     assignment_names.append(name)
 
         request_data = {
-            "subjectTimeData": subject_time_data,  # List of {subjectId: int, averageTimeInMinutes: int}
-            "hoursAvailablePerDay": int(hours_available) if hours_available is not None else 8,  # int
-            "daysPerWeek": int(days_per_week) if days_per_week is not None else 5,  # int
-            "weeksToSchedule": int(weeks_to_schedule) if weeks_to_schedule is not None else 4,  # int
-            "assignments": assignment_names  # List<string>
+            "subjectTimeData": subject_time_data,
+            "hoursAvailablePerDay": hours_available,
+            "daysPerWeek": days_per_week,
+            "weeksToSchedule": weeks_to_schedule,
+            "assignments": assignment_names
         }
 
         api_url = "https://study-planner-api-wes0.onrender.com//api/Ai/GenerateTimePlanner"
