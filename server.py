@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, session, request, jsonify
 from login import get_google_login_url, get_supabase, logout_user
 from dashboard import get_dashboard_data
-from subjects import get_subjects, add_subject
+from subjects import get_subjects, add_subject, delete_subject
 from assignments import get_assignments, mark_assignment_done, add_assignment
 from exams import get_exams, delete_exam, add_exam
 from ai import generate_study_planner_api
@@ -100,6 +100,11 @@ def dashboard():
     
     # get user email from session
     user_email = session['user'].get('email', '')
+    # get username part before @
+    if user_email and '@' in user_email:
+        user_name = user_email.split('@')[0]
+    else:
+        user_name = user_email
     
     # render template with data
     return render_template('dashboard.html', 
@@ -107,7 +112,7 @@ def dashboard():
                          assignments=dashboard_data['assignment_names'],
                          exams=dashboard_data['exam_names'],
                          subjects=dashboard_data['subject_names'],
-                         user_email=user_email)
+                         user_email=user_name)
 
 
 
@@ -231,6 +236,26 @@ def add_subject_route():
     
     # add subject
     if add_subject(user_id, subject_name):
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False})
+
+
+
+# delete subject
+@app.route('/subjects/delete', methods=['POST'])
+def delete_subject_route():
+    # check login
+    if not check_login():
+        return jsonify({'success': False})
+    
+    # get data
+    user_id = session['user'].get('id')
+    data = request.get_json()
+    subject_id = data.get('id')
+    
+    # delete subject
+    if delete_subject(user_id, subject_id):
         return jsonify({'success': True})
     else:
         return jsonify({'success': False})
