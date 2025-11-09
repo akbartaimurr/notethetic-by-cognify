@@ -60,9 +60,9 @@
                 <div class="subjects-list">
                     {% if subjects %}
                         {% for subject in subjects %}
-                        <div class="subject-card" data-subject-name="{{ subject.name|lower }}" data-subject-id="{{ subject.id }}">
+                        <div class="subject-card" data-subject-name="{{ subject.name|lower }}" data-subject-id="{{ subject.id }}" data-subject-name-display="{{ subject.name }}">
                             <h3>{{ subject.name }}</h3>
-                            <button onclick="showDeleteModal({{ subject.id }}, '{{ subject.name }}')" style="position: absolute; top: 10px; right: 10px; background-color: rgba(255, 0, 0, 0.7); color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 12px;">Delete</button>
+                            <button class="delete-subject-btn" style="background-color: rgba(255, 0, 0, 0.7); color: white; border: none; border-radius: 9999px; padding: 6px 14px; cursor: pointer; font-size: 12px; margin-top: 10px;">Delete</button>
                         </div>
                         {% endfor %}
                     {% else %}
@@ -176,6 +176,17 @@
             deleteSubjectId = subjectId;
             document.getElementById('deleteSubjectName').textContent = subjectName;
             document.getElementById('deleteSubjectModal').style.display = 'block';
+        }
+        
+        // add click handlers to delete buttons
+        var deleteButtons = document.querySelectorAll('.delete-subject-btn');
+        for (var i = 0; i < deleteButtons.length; i++) {
+            deleteButtons[i].onclick = function() {
+                var card = this.closest('.subject-card');
+                var subjectId = card.getAttribute('data-subject-id');
+                var subjectName = card.getAttribute('data-subject-name-display');
+                showDeleteModal(subjectId, subjectName);
+            };
         }
         
         function cancelDelete() {
