@@ -11,7 +11,7 @@
         .nav-link:hover { color: #26402B !important; background-color: rgba(0, 0, 0, 0.05) !important; }
         .nav-link:hover i { color: #26402B !important; }
         .mark-done-btn:hover {
-            background-color: #536555 !important;
+            background-color: #E5E7EB !important;
         }
         .add-assignment-btn:hover {
             background-color: #536555 !important;
@@ -63,7 +63,7 @@
                 <div class="assignments-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
                     {% if assignments %}
                         {% for assignment in assignments %}
-                        <div class="assignment-card" style="background-color: #F9FAFB; padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; width: 100%; text-align: left; align-items: flex-start; border-bottom: 6px solid #26402B;">
+                        <div class="assignment-card" style="background-color: #F9FAFB; padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; width: 100%; text-align: left; align-items: flex-start; border-bottom: 6px solid #E5E7EB;">
                             <h3 style="margin: 0; color: #26402B; font-size: 16px; text-align: left;">{{ assignment.name }}</h3>
                             {% if assignment.get('subject') %}
                             <p style="margin: 0; color: #6B7280; font-size: 13px; text-align: left;">Subject: {{ assignment.subject }}</p>
