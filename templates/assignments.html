@@ -133,7 +133,7 @@
         // add assignment form stuff
         document.getElementById('addAssignmentForm').onsubmit = function(e) {
             e.preventDefault();
-            var name = document.getElementById('assignmentName').value;
+            var name = document.getElementById('assignmentName').value.trim();
             if (!name) return;
             fetch('/assignments/add', { 
                 method: 'POST', 

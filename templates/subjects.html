@@ -154,7 +154,7 @@
         // add subject form stuff
         document.getElementById('addSubjectForm').onsubmit = function(e) {
             e.preventDefault();
-            var subject = document.getElementById('subjectDropdown').value || document.getElementById('customSubject').value;
+            var subject = (document.getElementById('subjectDropdown').value || document.getElementById('customSubject').value).trim();
             if (!subject) return;
             fetch('/subjects/add', { 
                 method: 'POST', 

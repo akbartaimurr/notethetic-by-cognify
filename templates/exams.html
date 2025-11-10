@@ -116,7 +116,7 @@
         // add exam form stuff
         document.getElementById('addExamForm').onsubmit = function(e) {
             e.preventDefault();
-            var name = document.getElementById('examName').value;
+            var name = document.getElementById('examName').value.trim();
             if (!name) return;
             fetch('/exams/add', { 
                 method: 'POST', 
