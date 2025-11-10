@@ -103,11 +103,17 @@
             </div>
         </div>
         
+        <!-- this is the whole chat box thingy on the right side -->
         <div id="aria-ai" class="aria-ai">
+            <!-- this is where all the messages show up (like the chat history area) -->
             <div id="aria-ai-messages" class="aria-ai-messages"></div>
+            <!-- this is the form where u type ur message and hit send -->
             <form id="aria-ai-form" class="aria-ai-form">
+                <!-- wrapper div to hold the input and button together -->
                 <div class="aria-ai-input-wrapper">
+                    <!-- the text box where u type ur message -->
                     <input type="text" id="aria-ai-input" class="aria-ai-input" placeholder="Type your message..." />
+                    <!-- the send button (starts disabled until u type something) -->
                     <button type="submit" id="aria-ai-button" class="aria-ai-button" disabled>Send</button>
                 </div>
             </form>
@@ -173,34 +179,40 @@
             };
         }
         
-        var f = document.getElementById('aria-ai-form');
-        var i = document.getElementById('aria-ai-input');
-        var b = document.getElementById('aria-ai-button');
-        var m = document.getElementById('aria-ai-messages');
-        if (f) {
+        // get all the elements we need (form, input, button, messages container)
+        var f = document.getElementById('aria-ai-form'); // the form element
+        var i = document.getElementById('aria-ai-input'); // the text input box
+        var b = document.getElementById('aria-ai-button'); // the send button
+        var m = document.getElementById('aria-ai-messages'); // where messages show up
+        if (f) { // if the form exists (safety check)
+            // when u type in the input, enable/disable the button based on if there's text
             i.oninput = () => b.disabled = i.value.length == 0;
+            // when u submit the form (hit enter or click send)
             f.onsubmit = function(e) {
-                e.preventDefault();
-                var msg = i.value.trim();
-                if (!msg) return;
-                i.value = '';
-                b.disabled = true;
+                e.preventDefault(); // stop the page from refreshing (we handle it ourselves)
+                var msg = i.value.trim(); // get the message and remove extra spaces
+                if (!msg) return; // if there's no message, just exit (dont do anything)
+                i.value = ''; // clear the input box
+                b.disabled = true; // disable the button while we wait for response
+                // create a div for the user's message (the green one on the right)
                 var u = document.createElement('div');
                 u.style.cssText = 'padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; background-color: #26402B; color: white; margin-left: auto; text-align: right;';
-                u.textContent = msg;
-                m.appendChild(u);
-                m.scrollTop = m.scrollHeight;
+                u.textContent = msg; // put the message text in there
+                m.appendChild(u); // add it to the messages container
+                m.scrollTop = m.scrollHeight; // scroll to the bottom to see the new message
+                // send the message to our backend api
                 fetch('/aria-ai/chat', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message: msg})})
-                .then(r => r.json())
+                .then(r => r.json()) // convert the response to json
                 .then(d => {
+                    // create a div for the ai's response (the gray one on the left)
                     var a = document.createElement('div');
                     a.style.cssText = 'padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; background-color: rgba(0, 0, 0, 0.05); color: rgba(0, 0, 0, 0.9);';
-                    a.textContent = d.response || 'Error';
-                    m.appendChild(a);
-                    m.scrollTop = m.scrollHeight;
-                    b.disabled = false;
+                    a.textContent = d.response || 'Error'; // put the ai response in there (or "Error" if something went wrong)
+                    m.appendChild(a); // add it to the messages container
+                    m.scrollTop = m.scrollHeight; // scroll to the bottom again
+                    b.disabled = false; // re-enable the button so u can send another message
                 })
-                .catch(() => {b.disabled = false;});
+                .catch(() => {b.disabled = false;}); // if something breaks, just re-enable the button
             };
         }
     </script>
