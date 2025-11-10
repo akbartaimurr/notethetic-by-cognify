@@ -29,3 +29,10 @@ def add_assignment(user_id, name, due, status):
     except:
         return False
 
+def delete_assignment(user_id, assignment_id):
+    try:
+        supabase = get_supabase_admin()
+        supabase.table('assignments').delete().eq('id', assignment_id).eq('userid', user_id).execute()
+        return True
+    except:
+        return False

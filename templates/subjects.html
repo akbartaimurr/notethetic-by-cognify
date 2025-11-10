@@ -103,18 +103,6 @@
             </div>
         </div>
         
-        <!-- Delete Subject Modal -->
-        <div id="deleteSubjectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
-            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 30px; border-radius: 10px; width: 400px;">
-                <h2 style="margin-bottom: 20px;">Delete Subject</h2>
-                <p style="margin-bottom: 20px;">Are you sure you want to delete <strong id="deleteSubjectName"></strong>?</p>
-                <div style="display: flex; gap: 10px;">
-                    <button onclick="confirmDelete()" style="flex: 1; padding: 10px; background-color: #dc2626; color: white; border: none; border-radius: 5px; cursor: pointer;">Confirm</button>
-                    <button onclick="cancelDelete()" style="flex: 1; padding: 10px; background-color: #ccc; color: black; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
-                </div>
-            </div>
-        </div>
-        
         <div id="aria-ai" class="aria-ai">
             <div id="aria-ai-messages" class="aria-ai-messages"></div>
             <form id="aria-ai-form" class="aria-ai-form">
@@ -170,62 +158,49 @@
         };
         
         // delete subject stuff
-        var deleteSubjectId = null;
-        
-        function showDeleteModal(subjectId, subjectName) {
-            deleteSubjectId = subjectId;
-            document.getElementById('deleteSubjectName').textContent = subjectName;
-            document.getElementById('deleteSubjectModal').style.display = 'block';
-        }
-        
-        // add click handlers to delete buttons
         var deleteButtons = document.querySelectorAll('.delete-subject-btn');
         for (var i = 0; i < deleteButtons.length; i++) {
             deleteButtons[i].onclick = function() {
                 var card = this.closest('.subject-card');
                 var subjectId = card.getAttribute('data-subject-id');
-                var subjectName = card.getAttribute('data-subject-name-display');
-                showDeleteModal(subjectId, subjectName);
+                fetch('/subjects/delete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({id: subjectId})
+                }).then(function() {
+                    location.reload();
+                });
             };
         }
         
-        function cancelDelete() {
-            document.getElementById('deleteSubjectModal').style.display = 'none';
-            deleteSubjectId = null;
-        }
-        
-        function confirmDelete() {
-            if (!deleteSubjectId) return;
-            fetch('/subjects/delete', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({id: deleteSubjectId})
-            }).then(function() {
-                location.reload();
-            });
-        }
-        
-        // aria ai form stuff
-        var form = document.getElementById('aria-ai-form');
-        var input = document.getElementById('aria-ai-input');
-        var button = document.getElementById('aria-ai-button');
-        if (form && input && button) {
-            form.onsubmit = function(e) {
+        var f = document.getElementById('aria-ai-form');
+        var i = document.getElementById('aria-ai-input');
+        var b = document.getElementById('aria-ai-button');
+        var m = document.getElementById('aria-ai-messages');
+        if (f) {
+            i.oninput = () => b.disabled = i.value.length == 0;
+            f.onsubmit = function(e) {
                 e.preventDefault();
-                var msg = input.value;
+                var msg = i.value.trim();
                 if (!msg) return;
-                input.value = '';
-                button.disabled = true;
-                var container = document.getElementById('aria-ai-messages');
-                container.innerHTML += '<div class="aria-ai-message aria-ai-message-user" style="padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; background-color: #26402B; color: white; margin-left: auto; text-align: right;">' + msg + '</div>';
-                setTimeout(function() {
-                    container.innerHTML += '<div class="aria-ai-message aria-ai-message-bot" style="padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; background-color: rgba(0, 0, 0, 0.05); color: rgba(0, 0, 0, 0.9);">Sorry, AI features are not available yet.</div>';
-                    container.scrollTop = container.scrollHeight;
-                    button.disabled = false;
-                }, 500);
-            };
-            input.oninput = function() {
-                button.disabled = input.value.length == 0;
+                i.value = '';
+                b.disabled = true;
+                var u = document.createElement('div');
+                u.style.cssText = 'padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; background-color: #26402B; color: white; margin-left: auto; text-align: right;';
+                u.textContent = msg;
+                m.appendChild(u);
+                m.scrollTop = m.scrollHeight;
+                fetch('/aria-ai/chat', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message: msg})})
+                .then(r => r.json())
+                .then(d => {
+                    var a = document.createElement('div');
+                    a.style.cssText = 'padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; background-color: rgba(0, 0, 0, 0.05); color: rgba(0, 0, 0, 0.9);';
+                    a.textContent = d.response || 'Error';
+                    m.appendChild(a);
+                    m.scrollTop = m.scrollHeight;
+                    b.disabled = false;
+                })
+                .catch(() => {b.disabled = false;});
             };
         }
     </script>

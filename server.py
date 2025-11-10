@@ -2,9 +2,9 @@ from flask import Flask, render_template, redirect, url_for, session, request, j
 from login import get_google_login_url, get_supabase, logout_user
 from dashboard import get_dashboard_data
 from subjects import get_subjects, add_subject, delete_subject
-from assignments import get_assignments, mark_assignment_done, add_assignment
+from assignments import get_assignments, mark_assignment_done, add_assignment, delete_assignment
 from exams import get_exams, delete_exam, add_exam
-from ai import generate_study_planner_api
+from ai import generate_study_planner_api, aria_ai_chat
 from data import get_user_data, update_user_data
 import os
 from dotenv import load_dotenv
@@ -190,6 +190,25 @@ def add_assignment_route():
     
     # add assignment
     if add_assignment(user_id, name, due, status):
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False})
+
+
+# delete assignment
+@app.route('/assignments/delete', methods=['POST'])
+def delete_assignment_route():
+    # check login
+    if not check_login():
+        return jsonify({'success': False})
+    
+    # get data
+    user_id = session['user'].get('id')
+    data = request.get_json()
+    assignment_id = data.get('id')
+    
+    # delete assignment
+    if delete_assignment(user_id, assignment_id):
         return jsonify({'success': True})
     else:
         return jsonify({'success': False})
@@ -401,6 +420,25 @@ def update_data_route():
         return jsonify({'success': True})
     else:
         return jsonify({'success': False})
+
+
+# aria ai chat route
+@app.route('/aria-ai/chat', methods=['POST'])
+def aria_ai_chat_route():
+    # check login
+    if not check_login():
+        return jsonify({'success': False, 'response': 'Please log in'})
+    
+    # get message from request
+    data = request.get_json()
+    message = data.get('message')
+    
+    if not message:
+        return jsonify({'success': False, 'response': 'No message provided'})
+    
+    # get ai response
+    response = aria_ai_chat(message)
+    return jsonify({'success': True, 'response': response})
 
 
 

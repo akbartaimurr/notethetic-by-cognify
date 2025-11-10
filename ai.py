@@ -35,3 +35,11 @@ def generate_study_planner_api(subjects, hours_available, days_per_week, weeks_t
 
     except:
         return "Error"
+
+def aria_ai_chat(message):
+    try:
+        url = "https://study-planner-api-wes0.onrender.com/api/Ai/chat"
+        r = requests.post(url, json={"message": message}, headers={"Content-Type": "application/json", "X-API-Key": "CbsmBuKrAydc7Ito9eQRfwzUYivlPxpS"})
+        return r.json().get("response", "Error")
+    except:
+        return "Error"
