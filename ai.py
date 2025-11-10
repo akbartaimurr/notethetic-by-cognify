@@ -40,7 +40,7 @@ def aria_ai_chat(message):
     try:
         url = "https://study-planner-api-wes0.onrender.com/api/Ai/chat"
         r = requests.post(url, json={"message": message}, headers={"Content-Type": "application/json", "X-API-Key": "CbsmBuKrAydc7Ito9eQRfwzUYivlPxpS"})
-        return r.json().get("response", "Error")
+        return r.json().get("assistantResponse", "Error")
     except Exception as e:
         print("Error:", str(e))
         return "Error: " + str(e)
