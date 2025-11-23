@@ -1,3 +1,8 @@
+> **Announcement from Developers:**
+> We're rebuilding the app and joining forces with other apps to create a unique study experience that feels agentic.
+> You can wishlist the app over here now!  https://notethetic.com
+
+
 <p align="center">
   <picture>
     <!-- Light mode logo -->
